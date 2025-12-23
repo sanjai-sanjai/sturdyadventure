@@ -33,7 +33,8 @@ export function PlayCoinsDisplay({
       className={cn(
         "inline-flex items-center gap-2 font-heading font-semibold rounded-full glass-card border border-secondary/50 backdrop-blur-xl sm:mx-0 mx-5",
         sizeClasses[size],
-        className
+        className,
+        "[@media(max-width:640px)]:justify-start"
       )}
       style={{
         backgroundImage: "linear-gradient(145deg, rgba(33, 27, 45, 0.8), rgba(23, 19, 32, 0.9))",

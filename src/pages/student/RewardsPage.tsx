@@ -164,19 +164,36 @@ export default function RewardsPage() {
             {/* ============ WALLET SUMMARY SECTION ============ */}
             <div className="relative mb-8 slide-up">
               {/* Primary Wallet Bar */}
-              <div className="bg-gradient-to-r from-accent/10 to-primary/10 rounded-2xl p-6 mb-6 border border-accent/20">
-                <div className="flex items-center justify-between">
-                  <div className="text-left">
-                    <p className="text-sm text-muted-foreground mb-1 font-bold">Balance</p>
-                    <div className="flex flex-row items-center gap-3">
-                      <h2 className="font-display text-4xl font-bold text-accent">
-                        {currentBalance.toLocaleString()}
-                      </h2>
-                      <EduCoin size="lg" />
+              <div className="flex flex-row">
+                <div className="bg-gradient-to-r from-accent/10 to-primary/10 rounded-2xl p-6 mb-6 border border-accent/20">
+                  <div className="flex items-center justify-between">
+                    <div className="text-left">
+                      <p className="text-sm text-muted-foreground mb-1 font-bold">Balance</p>
+                      <div className="flex flex-row items-center gap-3">
+                        <h2 className="font-display text-4xl font-bold text-accent">
+                          {currentBalance.toLocaleString()}
+                        </h2>
+                        <EduCoin size="lg" />
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">EduCoins</p>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1">EduCoins</p>
                   </div>
                 </div>
+                <img
+                  loading="lazy"
+                  srcSet="https://cdn.builder.io/api/v1/image/assets%2F5367439bd6874de29cc9e48538762737%2Fb0343b7a8d4c4fe7b7f743644a091374?width=100 100w, https://cdn.builder.io/api/v1/image/assets%2F5367439bd6874de29cc9e48538762737%2Fb0343b7a8d4c4fe7b7f743644a091374?width=200 200w, https://cdn.builder.io/api/v1/image/assets%2F5367439bd6874de29cc9e48538762737%2Fb0343b7a8d4c4fe7b7f743644a091374?width=400 400w, https://cdn.builder.io/api/v1/image/assets%2F5367439bd6874de29cc9e48538762737%2Fb0343b7a8d4c4fe7b7f743644a091374?width=800 800w, https://cdn.builder.io/api/v1/image/assets%2F5367439bd6874de29cc9e48538762737%2Fb0343b7a8d4c4fe7b7f743644a091374?width=1200 1200w, https://cdn.builder.io/api/v1/image/assets%2F5367439bd6874de29cc9e48538762737%2Fb0343b7a8d4c4fe7b7f743644a091374?width=1600 1600w, https://cdn.builder.io/api/v1/image/assets%2F5367439bd6874de29cc9e48538762737%2Fb0343b7a8d4c4fe7b7f743644a091374?width=2000 2000w, https://cdn.builder.io/api/v1/image/assets%2F5367439bd6874de29cc9e48538762737%2Fb0343b7a8d4c4fe7b7f743644a091374"
+                  style={{
+                    aspectRatio: "1.31",
+                    objectFit: "cover",
+                    objectPosition: "center",
+                    width: "100%",
+                    marginTop: "20px",
+                    minHeight: "20px",
+                    minWidth: "20px",
+                    overflow: "hidden",
+                  }}
+                  className="max-sm:max-w-[140px] max-sm:m-0 max-sm:ml-[7px]"
+                />
               </div>
 
               {/* Secondary Stats Row - Glass Cards */}
@@ -196,7 +213,14 @@ export default function RewardsPage() {
                 <div className="flex-1 glass-card rounded-xl p-4 border border-border/50">
                   <p className="text-xs text-muted-foreground mb-2 font-bold">Spent</p>
                   <div className="flex items-center gap-2">
-                    <p className="font-heading text-2xl font-bold text-primary">
+                    <p
+                      className="font-heading text-2xl font-bold text-primary"
+                      style={{
+                        "@media (max-width: 640px)": {
+                          color: "rgba(209, 80, 96, 1)",
+                        },
+                      } as React.CSSProperties}
+                    >
                       {spent.toLocaleString()}
                     </p>
                     <EduCoin size="sm" />

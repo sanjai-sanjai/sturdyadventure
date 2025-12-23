@@ -42,7 +42,7 @@ export function EduCoin({
       `}</style>
 
       <img
-        src="https://cdn.builder.io/api/v1/image/assets%2Fecf135b7255f45f9a20859de9b268e89%2Ffcffa91d053a40668b2f993f4cf3afea?format=webp&width=800"
+        src="https://cdn.builder.io/api/v1/image/assets%2F5367439bd6874de29cc9e48538762737%2F92c4ed1bf9034018abbad640d29cbcb2"
         alt="EduCoin"
         width={dimension}
         height={dimension}
@@ -53,7 +53,12 @@ export function EduCoin({
         style={{
           aspectRatio: "1 / 1",
           objectFit: "contain",
-        }}
+          "@media (max-width: 640px)": size === "lg"
+            ? { width: "30px" }
+            : size === "sm"
+            ? { width: "20px" }
+            : undefined,
+        } as React.CSSProperties}
       />
 
       {showLabel && <span className="text-xs font-bold text-yellow-600">EduCoins</span>}
