@@ -187,8 +187,20 @@ export default function FoodChainHunter() {
   const gameView = (
     <div className={isFullscreen ? "fixed inset-0 z-50 bg-background" : ""}>
       <div className={isFullscreen ? "h-screen flex flex-col" : "h-[400px]"}>
-        {/* Game Canvas */}
-        <div className="flex-1 overflow-hidden">{content}</div>
+        {/* Game Canvas with Fullscreen Button */}
+        <div className="flex-1 overflow-hidden relative">
+          {content}
+
+          {/* Fullscreen Button - Positioned Top-Right Inside Canvas */}
+          <button
+            onClick={() => setIsFullscreen(true)}
+            className="absolute top-4 right-4 z-40 w-11 h-11 flex items-center justify-center rounded-lg bg-primary/90 hover:bg-primary text-primary-foreground transition-all transform hover:scale-110 shadow-lg border border-primary/20 touch-none"
+            title="Fullscreen"
+            aria-label="Toggle fullscreen"
+          >
+            <Maximize2 className="h-5 w-5" />
+          </button>
+        </div>
 
         {/* Controls */}
         {!isFullscreen && (
