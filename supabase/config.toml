@@ -1,0 +1,25 @@
+project_id = "sdoxcmgwsaxdnhpfstug"
+
+[functions.award-playcoins]
+verify_jwt = true
+
+[functions.spend-playcoins]
+verify_jwt = true
+
+[functions.update-xp-level]
+verify_jwt = true
+
+[functions.update-streak]
+verify_jwt = true
+
+[functions.check-achievements]
+verify_jwt = true
+
+[functions.complete-game]
+verify_jwt = true
+
+[functions.ai-tutor]
+verify_jwt = true
+
+[functions.ai-assessment]
+verify_jwt = true

@@ -1,0 +1,342 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* PlayNlearn Dark Purple Gaming Theme
+   Background: Deep navy/purple (#0f0d1a, #1a1625)
+   Primary: Violet/Purple (#8b5cf6, #a855f7)
+   Secondary: Emerald Green (#10b981) - Success/Coins
+   Accent: Cyan/Teal (#06b6d4) - Highlights
+   Orange: (#f97316) - Warnings/Special
+*/
+
+@layer base {
+  :root {
+    /* Core backgrounds - Dark purple/navy */
+    --background: 260 30% 8%;
+    --foreground: 220 20% 95%;
+
+    /* Card surfaces - Slightly lighter purple */
+    --card: 260 25% 12%;
+    --card-foreground: 220 20% 95%;
+
+    /* Popover surfaces */
+    --popover: 260 25% 14%;
+    --popover-foreground: 220 20% 95%;
+
+    /* Primary - Vibrant Purple/Violet */
+    --primary: 262 83% 66%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 262 83% 75%;
+
+    /* Secondary - Emerald Green for coins/success */
+    --secondary: 160 84% 39%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Accent - Cyan/Teal for highlights */
+    --accent: 190 95% 43%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Badge Purple - Brighter variant */
+    --badge: 280 85% 65%;
+    --badge-foreground: 0 0% 100%;
+
+    /* Muted surfaces */
+    --muted: 260 20% 18%;
+    --muted-foreground: 220 15% 60%;
+
+    /* Destructive - Orange/Red */
+    --destructive: 25 95% 53%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders and inputs */
+    --border: 260 20% 22%;
+    --input: 260 20% 18%;
+    --ring: 262 83% 66%;
+
+    --radius: 1rem;
+
+    /* Sidebar */
+    --sidebar-background: 260 25% 10%;
+    --sidebar-foreground: 220 20% 95%;
+    --sidebar-primary: 262 83% 66%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 260 20% 18%;
+    --sidebar-accent-foreground: 220 20% 95%;
+    --sidebar-border: 260 20% 22%;
+    --sidebar-ring: 262 83% 66%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(262, 83%, 58%), hsl(280, 85%, 65%));
+    --gradient-success: linear-gradient(135deg, hsl(160, 84%, 39%), hsl(160, 84%, 50%));
+    --gradient-accent: linear-gradient(135deg, hsl(190, 95%, 43%), hsl(200, 95%, 55%));
+    --gradient-badge: linear-gradient(135deg, hsl(280, 85%, 60%), hsl(300, 80%, 60%));
+    --gradient-hero: linear-gradient(180deg, hsl(260, 30%, 12%) 0%, hsl(260, 30%, 8%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(260, 25%, 14%), hsl(260, 25%, 10%));
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(260 30% 5% / 0.5);
+    --shadow-md: 0 4px 6px -1px hsl(260 30% 5% / 0.4);
+    --shadow-lg: 0 10px 15px -3px hsl(260 30% 5% / 0.4);
+    --shadow-glow: 0 0 30px hsl(262 83% 66% / 0.3);
+    --shadow-accent: 0 4px 20px hsl(160 84% 39% / 0.4);
+    --shadow-glow-strong: 0 0 40px hsl(262 83% 66% / 0.5);
+  }
+
+  /* Dark mode is now the default - same values */
+  .dark {
+    --background: 260 30% 8%;
+    --foreground: 220 20% 95%;
+    --card: 260 25% 12%;
+    --card-foreground: 220 20% 95%;
+    --popover: 260 25% 14%;
+    --popover-foreground: 220 20% 95%;
+    --primary: 262 83% 66%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 262 83% 75%;
+    --secondary: 160 84% 39%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 190 95% 43%;
+    --accent-foreground: 0 0% 100%;
+    --badge: 280 85% 65%;
+    --badge-foreground: 0 0% 100%;
+    --muted: 260 20% 18%;
+    --muted-foreground: 220 15% 60%;
+    --destructive: 25 95% 53%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 260 20% 22%;
+    --input: 260 20% 18%;
+    --ring: 262 83% 66%;
+    --sidebar-background: 260 25% 10%;
+    --sidebar-foreground: 220 20% 95%;
+    --sidebar-primary: 262 83% 66%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 260 20% 18%;
+    --sidebar-accent-foreground: 220 20% 95%;
+    --sidebar-border: 260 20% 22%;
+    --sidebar-ring: 262 83% 66%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+  }
+
+  .font-display {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+  }
+}
+
+@layer utilities {
+  /* Glassmorphism card effect */
+  .glass-card {
+    background: linear-gradient(145deg, 
+      hsl(260 25% 14% / 0.8), 
+      hsl(260 25% 10% / 0.9)
+    );
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(260 20% 25% / 0.5);
+  }
+
+  /* Neon glow effects */
+  .glow-primary {
+    box-shadow: 0 0 20px hsl(262 83% 66% / 0.4),
+                0 0 40px hsl(262 83% 66% / 0.2);
+  }
+
+  .glow-secondary {
+    box-shadow: 0 0 20px hsl(160 84% 39% / 0.4),
+                0 0 40px hsl(160 84% 39% / 0.2);
+  }
+
+  .glow-accent {
+    box-shadow: 0 0 20px hsl(190 95% 43% / 0.4),
+                0 0 40px hsl(190 95% 43% / 0.2);
+  }
+
+  /* PlayCoins shimmer animation */
+  .coin-shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(160 84% 39%) 0%,
+      hsl(160 84% 55%) 50%,
+      hsl(160 84% 39%) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* Game-like pulse animation */
+  .pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { 
+      box-shadow: 0 0 10px hsl(262 83% 66% / 0.3);
+    }
+    50% { 
+      box-shadow: 0 0 30px hsl(262 83% 66% / 0.6);
+    }
+  }
+
+  /* Bounce animation for rewards */
+  .bounce-reward {
+    animation: bounceReward 0.6s ease-out;
+  }
+
+  @keyframes bounceReward {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Floating animation */
+  .float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  /* Progress fill animation */
+  .progress-fill {
+    animation: progressFill 1s ease-out forwards;
+  }
+
+  @keyframes progressFill {
+    from { width: 0%; }
+  }
+
+  /* Slide up animation */
+  .slide-up {
+    animation: slideUp 0.4s ease-out;
+  }
+
+  @keyframes slideUp {
+    from { 
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Touch feedback */
+  .touch-scale {
+    @apply transition-transform duration-150 active:scale-95;
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(262, 83%, 66%), hsl(280, 85%, 70%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Card hover effect */
+  .card-hover {
+    @apply transition-all duration-300;
+  }
+  
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px hsl(262 83% 66% / 0.2);
+  }
+
+  /* Subject card colored borders */
+  .subject-border-primary {
+    border: 2px solid hsl(262 83% 66% / 0.5);
+  }
+
+  .subject-border-secondary {
+    border: 2px solid hsl(160 84% 39% / 0.5);
+  }
+
+  .subject-border-accent {
+    border: 2px solid hsl(190 95% 43% / 0.5);
+  }
+
+  .subject-border-badge {
+    border: 2px solid hsl(280 85% 65% / 0.5);
+  }
+
+  .subject-border-destructive {
+    border: 2px solid hsl(25 95% 53% / 0.5);
+  }
+
+  /* Bounce in animation for notification badges */
+  .animate-bounce-in {
+    animation: bounceIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  @keyframes bounceIn {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Slide in animation */
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out forwards;
+    opacity: 0;
+  }
+
+  @keyframes slideIn {
+    from { 
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Fade in animation */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Safe area padding for mobile */
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .safe-area-pt {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
