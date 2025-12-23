@@ -33,19 +33,14 @@ export function PlayCoinsDisplay({
       className={cn(
         "inline-flex items-center gap-2 font-heading font-semibold rounded-full glass-card border border-secondary/50 backdrop-blur-xl sm:mx-0 mx-5",
         sizeClasses[size],
-        className
+        className,
+        "[@media(max-width:640px)]:justify-start"
       )}
       style={{
         backgroundImage: "linear-gradient(145deg, rgba(33, 27, 45, 0.8), rgba(23, 19, 32, 0.9))",
         boxShadow: "0 0 20px rgba(59, 168, 66, 0.25), 0 0 40px rgba(59, 168, 66, 0.15) inset",
         animation: "glow-pulse 3s ease-in-out infinite",
       }}
-      className={cn(
-        "inline-flex items-center gap-2 font-heading font-semibold rounded-full glass-card border border-secondary/50 backdrop-blur-xl sm:mx-0 mx-5",
-        sizeClasses[size],
-        className,
-        "[@media(max-width:640px)]:justify-start"
-      )}
     >
       <style>{`
         @keyframes glow-pulse {
