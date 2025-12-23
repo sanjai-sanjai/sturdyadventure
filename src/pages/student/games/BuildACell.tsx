@@ -333,7 +333,6 @@ export default function BuildACell() {
     <>
       <ConceptIntroPopup
         isOpen={showIntro}
-        onClose={() => setShowIntro(true)}
         onStart={() => {
           setShowIntro(false);
           setGameStarted(true);
