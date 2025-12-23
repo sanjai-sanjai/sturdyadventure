@@ -362,16 +362,6 @@ export default function GoodGermVsBadGerm() {
         {!isFullscreen ? (
           <div className="max-w-4xl mx-auto">
             {gameView}
-            <div className="flex justify-end p-4 border-t border-border bg-card/50">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsFullscreen(true)}
-                className="gap-2"
-              >
-                <Maximize2 className="h-4 w-4" /> Fullscreen
-              </Button>
-            </div>
           </div>
         ) : (
           gameView
