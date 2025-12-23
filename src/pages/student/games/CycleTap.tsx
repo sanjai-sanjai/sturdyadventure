@@ -6,17 +6,78 @@ import { Maximize2, Minimize2, RotateCcw, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface LifeStage {
+  id: string;
   name: string;
   emoji: string;
   description: string;
+  order: number;
 }
 
-const BUTTERFLY_CYCLE: LifeStage[] = [
-  { name: "Egg", emoji: "🥚", description: "Tiny eggs on a leaf" },
-  { name: "Caterpillar", emoji: "🐛", description: "Hungry eating stage" },
-  { name: "Chrysalis", emoji: "🟫", description: "Transformation stage" },
-  { name: "Butterfly", emoji: "🦋", description: "Beautiful flying stage" },
-];
+interface Organism {
+  id: string;
+  name: string;
+  emoji: string;
+  color: string;
+  stages: LifeStage[];
+}
+
+const ORGANISMS: Record<string, Organism> = {
+  butterfly: {
+    id: "butterfly",
+    name: "Butterfly",
+    emoji: "🦋",
+    color: "from-orange-500/30 to-pink-500/30",
+    stages: [
+      { id: "b1", name: "Egg", emoji: "🥚", description: "Tiny eggs on a leaf", order: 0 },
+      { id: "b2", name: "Caterpillar", emoji: "🐛", description: "Hungry eating stage", order: 1 },
+      { id: "b3", name: "Chrysalis", emoji: "🫘", description: "Transformation stage", order: 2 },
+      { id: "b4", name: "Butterfly", emoji: "🦋", description: "Beautiful flying stage", order: 3 },
+    ],
+  },
+  frog: {
+    id: "frog",
+    name: "Frog",
+    emoji: "🐸",
+    color: "from-green-500/30 to-blue-500/30",
+    stages: [
+      { id: "f1", name: "Eggs", emoji: "🥚", description: "Jelly-like frog eggs", order: 0 },
+      { id: "f2", name: "Tadpole", emoji: "🐟", description: "Water-dwelling stage", order: 1 },
+      { id: "f3", name: "Tadpole + Legs", emoji: "🐸", description: "Growing legs", order: 2 },
+      { id: "f4", name: "Froglet", emoji: "🐸", description: "Tail shrinking", order: 3 },
+      { id: "f5", name: "Adult Frog", emoji: "🐸", description: "Full grown amphibian", order: 4 },
+    ],
+  },
+  plant: {
+    id: "plant",
+    name: "Plant",
+    emoji: "🌱",
+    color: "from-green-500/30 to-lime-500/30",
+    stages: [
+      { id: "p1", name: "Seed", emoji: "🫘", description: "Dormant stage", order: 0 },
+      { id: "p2", name: "Sprout", emoji: "🌱", description: "First growth", order: 1 },
+      { id: "p3", name: "Seedling", emoji: "🌿", description: "Young plant", order: 2 },
+      { id: "p4", name: "Flowering", emoji: "🌸", description: "Blooming stage", order: 3 },
+      { id: "p5", name: "Mature Plant", emoji: "🌳", description: "Full grown", order: 4 },
+    ],
+  },
+  human: {
+    id: "human",
+    name: "Human",
+    emoji: "👶",
+    color: "from-yellow-500/30 to-orange-500/30",
+    stages: [
+      { id: "h1", name: "Baby", emoji: "👶", description: "Newborn", order: 0 },
+      { id: "h2", name: "Toddler", emoji: "🧒", description: "Early childhood", order: 1 },
+      { id: "h3", name: "Child", emoji: "👦", description: "Growing up", order: 2 },
+      { id: "h4", name: "Teenager", emoji: "👨", description: "Adolescence", order: 3 },
+      { id: "h5", name: "Adult", emoji: "🧑", description: "Fully grown", order: 4 },
+    ],
+  },
+};
+
+interface DraggedStage extends LifeStage {
+  position: number; // Current position in sequence
+}
 
 export default function CycleTap() {
   const navigate = useNavigate();
@@ -24,197 +85,327 @@ export default function CycleTap() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
-  const [currentStage, setCurrentStage] = useState(0);
-  const [completedCycles, setCompletedCycles] = useState(0);
-  const [totalTaps, setTotalTaps] = useState(0);
-  const [wheelRotation, setWheelRotation] = useState(0);
+  const [selectedOrganism, setSelectedOrganism] = useState<string | null>(null);
+  const [gameWon, setGameWon] = useState(false);
+
+  // Game state
+  const [sequence, setSequence] = useState<DraggedStage[]>([]);
+  const [unplacedStages, setUnplacedStages] = useState<LifeStage[]>([]);
   const [feedback, setFeedback] = useState("");
-  const [nextStageOptions, setNextStageOptions] = useState<number[]>([]);
+  const [shakeStage, setShakeStage] = useState<string | null>(null);
 
-  // Initialize next stage options
+  // Initialize game when organism is selected
   useEffect(() => {
-    if (gameStarted && !showCompletion) {
-      const nextIndex = (currentStage + 1) % BUTTERFLY_CYCLE.length;
-      const incorrectIndices = Array.from({ length: BUTTERFLY_CYCLE.length }, (_, i) => i).filter(
-        (i) => i !== nextIndex
-      );
-      const shuffled = [nextIndex, ...incorrectIndices.slice(0, 2)].sort(() => Math.random() - 0.5);
-      setNextStageOptions(shuffled);
+    if (selectedOrganism && gameStarted) {
+      const organism = ORGANISMS[selectedOrganism];
+      const shuffled = [...organism.stages].sort(() => Math.random() - 0.5);
+      setUnplacedStages(shuffled);
+      setSequence([]);
     }
-  }, [currentStage, gameStarted, showCompletion]);
+  }, [selectedOrganism, gameStarted]);
 
-  const handleStageSelect = (stageIndex: number) => {
-    setTotalTaps(totalTaps + 1);
+  const handleOrganismSelect = (orgId: string) => {
+    setSelectedOrganism(orgId);
+  };
 
-    const expectedNextIndex = (currentStage + 1) % BUTTERFLY_CYCLE.length;
+  const handleDragStart = (e: React.DragEvent, stage: LifeStage, from: "unplaced" | "sequence", sequenceIndex?: number) => {
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("stageId", stage.id);
+    e.dataTransfer.setData("from", from);
+    if (sequenceIndex !== undefined) {
+      e.dataTransfer.setData("sequenceIndex", sequenceIndex.toString());
+    }
+  };
 
-    if (stageIndex === expectedNextIndex) {
-      setFeedback("✨ Perfect! Correct stage!");
-      setWheelRotation((prev) => prev + 90);
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
 
-      setTimeout(() => {
-        const newStage = (currentStage + 1) % BUTTERFLY_CYCLE.length;
-        setCurrentStage(newStage);
-        setFeedback("");
+  const handleDropOnSequence = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    const stageId = e.dataTransfer.getData("stageId");
+    const from = e.dataTransfer.getData("from") as "unplaced" | "sequence";
+    const sequenceIndexStr = e.dataTransfer.getData("sequenceIndex");
 
-        if (newStage === 0) {
-          setCompletedCycles(completedCycles + 1);
-          if (completedCycles + 1 >= 3) {
-            setShowCompletion(true);
-          }
-        }
-      }, 800);
+    const organism = ORGANISMS[selectedOrganism!];
+    const stage = organism.stages.find((s) => s.id === stageId);
+    if (!stage) return;
+
+    // Remove from source
+    if (from === "unplaced") {
+      setUnplacedStages((prev) => prev.filter((s) => s.id !== stageId));
     } else {
-      setFeedback("⚠️ Not this one! Try again.");
-      setTimeout(() => setFeedback(""), 1500);
+      const sequenceIndex = parseInt(sequenceIndexStr);
+      setSequence((prev) => prev.filter((_, i) => i !== sequenceIndex));
     }
+
+    // Add to sequence at drop position
+    const draggedStage: DraggedStage = { ...stage, position: dropIndex };
+    const newSequence = [...sequence];
+    newSequence.splice(dropIndex, 0, draggedStage);
+
+    // Reassign positions
+    newSequence.forEach((s, i) => (s.position = i));
+    setSequence(newSequence);
+
+    // Check if correct order
+    const isCorrect = newSequence.every((s, i) => s.order === i);
+    if (isCorrect && newSequence.length === organism.stages.length) {
+      handleSequenceComplete();
+    }
+  };
+
+  const handleDropOnUnplaced = (e: React.DragEvent) => {
+    e.preventDefault();
+    const stageId = e.dataTransfer.getData("stageId");
+    const from = e.dataTransfer.getData("from") as "unplaced" | "sequence";
+
+    if (from === "sequence") {
+      const sequenceIndex = parseInt(e.dataTransfer.getData("sequenceIndex"));
+      const organism = ORGANISMS[selectedOrganism!];
+      const stage = sequence[sequenceIndex];
+
+      setSequence((prev) => prev.filter((_, i) => i !== sequenceIndex));
+      setUnplacedStages((prev) => [...prev, stage]);
+    }
+  };
+
+  const handleIncorrectPlacement = (stageId: string) => {
+    setShakeStage(stageId);
+    setFeedback("❌ Wrong position! Try again.");
+    setTimeout(() => {
+      setShakeStage(null);
+      setFeedback("");
+    }, 600);
+  };
+
+  const handleSequenceComplete = () => {
+    setShowCompletion(true);
+    setGameWon(true);
+    setFeedback("✅ Perfect sequence! The life cycle is complete!");
   };
 
   const handleRetry = () => {
-    setCurrentStage(0);
-    setCompletedCycles(0);
-    setTotalTaps(0);
-    setWheelRotation(0);
+    setSelectedOrganism(null);
+    setSequence([]);
+    setUnplacedStages([]);
     setFeedback("");
+    setShakeStage(null);
     setGameStarted(false);
     setShowCompletion(false);
+    setGameWon(false);
   };
 
-  const content = (
+  const organism = selectedOrganism ? ORGANISMS[selectedOrganism] : null;
+
+  const gameContent = (
     <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-purple-900/10 to-blue-900/20 relative overflow-hidden p-4">
-      {/* Background decorations */}
+      {/* Decorative background elements */}
       <div className="absolute inset-0 opacity-20 pointer-events-none">
-        <div className="absolute top-10 right-1/4 text-5xl animate-bounce">🌞</div>
-        <div className="absolute bottom-20 left-1/4 text-4xl animate-pulse">🌿</div>
+        <div className="absolute top-10 right-1/4 text-6xl animate-bounce">🌞</div>
+        <div className="absolute bottom-20 left-1/4 text-5xl animate-pulse">🌿</div>
       </div>
 
-      <div className="relative z-10 w-full max-w-2xl">
-        {/* Progress */}
-        <div className="text-center mb-6">
-          <h3 className="text-sm text-muted-foreground mb-1">
-            Cycles Completed: {completedCycles}/3
-          </h3>
-          <p className="text-xs text-muted-foreground">
-            Complete 3 full life cycles to master the pattern
-          </p>
-        </div>
+      <div className="relative z-10 w-full max-w-3xl">
+        {/* Organism Selection */}
+        {!selectedOrganism ? (
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-foreground mb-2">
+                Select an Organism
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Choose which life cycle you want to master!
+              </p>
+            </div>
 
-        {/* Lifecycle Wheel */}
-        <div className="flex justify-center mb-8">
-          <div className="relative w-80 h-80">
-            {/* Rotating wheel background */}
-            <svg
-              viewBox="0 0 400 400"
-              className="w-full h-full"
-              style={{
-                transform: `rotate(${wheelRotation}deg)`,
-                transition: "transform 0.6s ease-out",
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {Object.values(ORGANISMS).map((org) => (
+                <button
+                  key={org.id}
+                  onClick={() => handleOrganismSelect(org.id)}
+                  className={`p-4 rounded-lg border-2 transition-all transform hover:scale-105 flex flex-col items-center gap-2 ${
+                    selectedOrganism === org.id
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-card/50 hover:border-primary/50"
+                  }`}
+                >
+                  <div className="text-4xl">{org.emoji}</div>
+                  <span className="text-sm font-medium text-foreground">
+                    {org.name}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {org.stages.length} stages
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => {
+                setGameStarted(true);
               }}
+              disabled={!selectedOrganism}
+              className="w-full mt-6 px-4 py-3 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground font-bold rounded-lg transition-all transform hover:scale-105"
             >
-              <circle cx="200" cy="200" r="150" fill="none" stroke="currentColor" strokeWidth="2" className="text-border" opacity="0.3" />
+              ▶️ Start Game
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Organism Header */}
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-foreground mb-1">
+                {organism?.emoji} {organism?.name} Life Cycle
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Arrange the stages in the correct order
+              </p>
+            </div>
 
-              {/* Stage positions */}
-              {BUTTERFLY_CYCLE.map((_, index) => {
-                const angle = (index / BUTTERFLY_CYCLE.length) * 360;
-                const x = 200 + 120 * Math.cos((angle - 90) * (Math.PI / 180));
-                const y = 200 + 120 * Math.sin((angle - 90) * (Math.PI / 180));
+            {/* Feedback */}
+            {feedback && (
+              <div
+                className={`p-3 rounded-lg text-center transition-all ${
+                  feedback.includes("Perfect") || feedback.includes("Wrong")
+                    ? feedback.includes("Wrong")
+                      ? "bg-orange-500/20 text-orange-600 border border-orange-500/30"
+                      : "bg-green-500/20 text-green-600 border border-green-500/30"
+                    : "bg-blue-500/20 text-blue-600 border border-blue-500/30"
+                }`}
+              >
+                {feedback}
+              </div>
+            )}
 
-                return (
-                  <g key={index}>
-                    <circle
-                      cx={x}
-                      cy={y}
-                      r="30"
-                      fill="currentColor"
-                      className="text-muted/30"
-                    />
-                  </g>
-                );
-              })}
+            {/* Sequence Builder */}
+            <div
+              onDragOver={handleDragOver}
+              onDrop={(e) => {
+                e.preventDefault();
+                const from = e.dataTransfer.getData("from");
+                if (from === "unplaced") {
+                  const stageId = e.dataTransfer.getData("stageId");
+                  const stage = unplacedStages.find((s) => s.id === stageId);
+                  if (stage) {
+                    handleDropOnSequence(e, sequence.length);
+                  }
+                }
+              }}
+              className={`bg-gradient-to-br ${organism?.color} border-2 border-dashed border-border rounded-lg p-6 min-h-32 flex items-center justify-center transition-all`}
+            >
+              {sequence.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center">
+                  Drag stages here to build the life cycle in order →
+                </p>
+              ) : (
+                <div className="flex gap-3 flex-wrap justify-center items-center w-full">
+                  {sequence.map((stage, index) => (
+                    <div
+                      key={`${stage.id}-${index}`}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, stage, "sequence", index)}
+                      className={`flex flex-col items-center gap-1 p-3 bg-card rounded-lg border-2 border-primary/50 cursor-move transition-all transform hover:scale-105 ${
+                        shakeStage === stage.id ? "animate-bounce" : ""
+                      }`}
+                    >
+                      <div className="text-3xl">{stage.emoji}</div>
+                      <span className="text-xs font-medium text-foreground">
+                        {stage.name}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {index + 1}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-              {/* Center indicator */}
-              <circle cx="200" cy="200" r="15" fill="currentColor" className="text-primary" />
-            </svg>
+            {/* Unplaced Stages */}
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-foreground">
+                🎴 Available Stages ({unplacedStages.length})
+              </p>
+              <div
+                onDragOver={handleDragOver}
+                onDrop={handleDropOnUnplaced}
+                className="bg-muted/30 border border-border rounded-lg p-4 flex flex-wrap gap-3 justify-center min-h-24 items-center"
+              >
+                {unplacedStages.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">
+                    All stages placed! ✅
+                  </p>
+                ) : (
+                  unplacedStages.map((stage) => (
+                    <div
+                      key={stage.id}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, stage, "unplaced")}
+                      className="flex flex-col items-center gap-1 p-3 bg-card rounded-lg border-2 border-border hover:border-primary/50 cursor-move transition-all transform hover:scale-105"
+                    >
+                      <div className="text-3xl">{stage.emoji}</div>
+                      <span className="text-xs font-medium text-foreground text-center">
+                        {stage.name}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
 
-            {/* Stage buttons overlaid */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              {nextStageOptions.map((stageIndex) => {
-                const angle = (stageIndex / BUTTERFLY_CYCLE.length) * 360;
-                const x = 120 * Math.cos((angle - 90) * (Math.PI / 180));
-                const y = 120 * Math.sin((angle - 90) * (Math.PI / 180));
+            {/* Stage Descriptions */}
+            {selectedOrganism && sequence.length === 0 && (
+              <div className="bg-accent/20 border border-accent/50 rounded-lg p-3 text-center text-xs text-muted-foreground">
+                💡 Drag each stage into the sequence area in the correct biological order
+              </div>
+            )}
 
-                const isCorrect = stageIndex === (currentStage + 1) % BUTTERFLY_CYCLE.length;
-
-                return (
-                  <button
-                    key={stageIndex}
-                    onClick={() => handleStageSelect(stageIndex)}
-                    className={`absolute w-20 h-20 flex flex-col items-center justify-center rounded-full border-2 transition-all transform hover:scale-110 ${
-                      isCorrect
-                        ? "border-green-500/40 bg-green-500/10 hover:border-green-500"
-                        : "border-border bg-card/50 hover:border-primary/50"
-                    }`}
-                    style={{
-                      left: "50%",
-                      top: "50%",
-                      transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
-                    }}
-                  >
-                    <div className="text-3xl">{BUTTERFLY_CYCLE[stageIndex].emoji}</div>
-                    <p className="text-xs font-medium text-foreground mt-1">
-                      {BUTTERFLY_CYCLE[stageIndex].name}
-                    </p>
-                  </button>
-                );
-              })}
+            {/* Help Text */}
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground">
+                {organism?.stages.length === sequence.length
+                  ? `You've arranged all ${sequence.length} stages! Check if the order is correct.`
+                  : `Place ${sequence.length}/${organism?.stages.length} stages`}
+              </p>
             </div>
           </div>
-        </div>
-
-        {/* Current Stage Info */}
-        <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold text-foreground mb-2">
-            Current: {BUTTERFLY_CYCLE[currentStage].name}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {BUTTERFLY_CYCLE[currentStage].description}
-          </p>
-        </div>
-
-        {/* Feedback */}
-        {feedback && (
-          <div
-            className={`text-center mb-4 p-3 rounded-lg transition-all ${
-              feedback.includes("Perfect")
-                ? "bg-green-500/20 text-green-600"
-                : "bg-yellow-500/20 text-yellow-600"
-            }`}
-          >
-            {feedback}
-          </div>
         )}
-
-        {/* Instructions */}
-        <div className="bg-accent/20 border border-accent/50 rounded-lg p-3 text-center text-xs text-muted-foreground">
-          👉 Tap the correct next stage in the butterfly's life cycle!
-        </div>
       </div>
     </div>
   );
 
   const gameView = (
-    <div className={isFullscreen ? "fixed inset-0 z-50 bg-background" : ""}>
-      <div className={isFullscreen ? "h-screen flex flex-col" : "h-[600px]"}>
-        <div className="flex-1 overflow-auto">{content}</div>
+    <div className={isFullscreen ? "fixed inset-0 z-50 bg-background" : "relative"}>
+      <div className={isFullscreen ? "h-screen flex flex-col" : "h-[650px] relative"}>
+        {/* Game Canvas with Fullscreen Button */}
+        <div className="flex-1 overflow-auto relative">
+          {gameContent}
 
-        {!isFullscreen && (
-          <div className="border-t border-border bg-card/50 p-4 space-y-2">
-            <p className="text-sm font-medium text-foreground">
-              🧠 Learning: Life Cycle Stages
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Master the butterfly life cycle - the order matters!
-            </p>
+          {/* Fullscreen Button - Positioned Top-Right Inside Canvas */}
+          {selectedOrganism && (
+            <button
+              onClick={() => setIsFullscreen(true)}
+              className="absolute top-4 right-4 z-40 w-11 h-11 flex items-center justify-center rounded-lg bg-primary/90 hover:bg-primary text-primary-foreground transition-all transform hover:scale-110 shadow-lg border border-primary/20 touch-none"
+              title="Fullscreen"
+              aria-label="Toggle fullscreen"
+            >
+              <Maximize2 className="h-5 w-5" />
+            </button>
+          )}
+        </div>
+
+        {!isFullscreen && selectedOrganism && (
+          <div className="border-t border-border bg-card/50 p-4 space-y-3">
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-foreground">
+                🧠 Learning: Life Cycle Stages
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Arrange the stages of an organism's life cycle in the correct biological order
+              </p>
+            </div>
             <div className="flex gap-2 pt-2">
               <Button
                 variant="outline"
@@ -233,6 +424,22 @@ export default function CycleTap() {
                 <ChevronLeft className="h-4 w-4" /> Back to Biology
               </Button>
             </div>
+          </div>
+        )}
+
+        {!isFullscreen && !selectedOrganism && (
+          <div className="border-t border-border bg-card/50 p-4 space-y-3">
+            <p className="text-xs text-muted-foreground">
+              ← Select an organism to begin
+            </p>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/student/biology")}
+              className="gap-2 ml-auto"
+            >
+              <ChevronLeft className="h-4 w-4" /> Back to Biology
+            </Button>
           </div>
         )}
       </div>
@@ -263,19 +470,18 @@ export default function CycleTap() {
     <>
       <ConceptIntroPopup
         isOpen={showIntro}
-        onClose={() => setShowIntro(true)}
         onStart={() => {
           setShowIntro(false);
           setGameStarted(true);
         }}
-        conceptName="🦋 Cycle Tap"
-        whatYouWillUnderstand="Learn that life happens in stages, and the order of these stages cannot be skipped. Cycles repeat forever in nature."
+        conceptName="🔄 Cycle Connect"
+        whatYouWillUnderstand="Learn that living organisms go through specific life cycle stages in a fixed order. Each stage is necessary and cannot be skipped."
         gameSteps={[
-          "Watch the current stage in the butterfly's life cycle",
-          "Tap the correct next stage to advance the cycle",
-          "Complete 3 full cycles to master the pattern",
+          "Select an organism (butterfly, frog, plant, or human)",
+          "Drag the scrambled life cycle stages into the correct order",
+          "Complete the sequence to see the full life cycle animation",
         ]}
-        successMeaning="You'll understand the complete life cycle and how nature repeats this pattern perfectly!"
+        successMeaning="You'll understand how nature follows patterns and why the order of life stages matters!"
         icon="🦋"
       />
 
@@ -284,7 +490,11 @@ export default function CycleTap() {
         onPlayAgain={handleRetry}
         onExitFullscreen={() => setIsFullscreen(false)}
         onBackToGames={() => navigate("/student/biology")}
-        learningOutcome="You've mastered the butterfly life cycle! You now understand that nature moves in perfect patterns and order matters!"
+        learningOutcome={
+          gameWon
+            ? `You mastered the ${organism?.name} life cycle! You learned that each stage is necessary and happens in a precise order.`
+            : "Good try! Remember: life cycles follow nature's rules. Practice ordering different organisms!"
+        }
         isFullscreen={isFullscreen}
       />
 
@@ -292,16 +502,6 @@ export default function CycleTap() {
         {!isFullscreen ? (
           <div className="max-w-4xl mx-auto">
             {gameView}
-            <div className="flex justify-end p-4 border-t border-border bg-card/50">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsFullscreen(true)}
-                className="gap-2"
-              >
-                <Maximize2 className="h-4 w-4" /> Fullscreen
-              </Button>
-            </div>
           </div>
         ) : (
           gameView
