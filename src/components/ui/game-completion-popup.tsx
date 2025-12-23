@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
 
 export interface GameCompletionPopupProps {
   isOpen: boolean;
@@ -18,9 +19,69 @@ export function GameCompletionPopup({
   learningOutcome,
   isFullscreen = false,
 }: GameCompletionPopupProps) {
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+
+  const handleExitFullscreenClick = () => {
+    if (isFullscreen) {
+      setShowExitConfirm(true);
+    } else {
+      onBackToGames();
+    }
+  };
+
+  const handleConfirmExit = () => {
+    setShowExitConfirm(false);
+    if (onExitFullscreen) {
+      onExitFullscreen();
+    }
+    onBackToGames();
+  };
+
+  const handleCancelExit = () => {
+    setShowExitConfirm(false);
+  };
+
+  if (showExitConfirm) {
+    return (
+      <Dialog open={isOpen} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-[400px] glass-card border-border text-center">
+          <DialogHeader>
+            <DialogTitle>Exit Fullscreen?</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Would you like to exit fullscreen mode and return to Gamified Learning?
+            </p>
+          </div>
+
+          <div className="mt-6 flex gap-3">
+            <Button
+              variant="outline"
+              onClick={handleCancelExit}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmExit}
+              className="flex-1 bg-primary hover:bg-primary/90"
+            >
+              Yes, Exit
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="sm:max-w-[450px] glass-card border-border text-center">
+        <DialogHeader>
+          <DialogTitle className="hidden">Congratulations!</DialogTitle>
+        </DialogHeader>
+
         {/* Celebration Emoji Animation */}
         <div className="mb-4 text-6xl animate-bounce">🎉</div>
 
@@ -42,22 +103,23 @@ export function GameCompletionPopup({
           >
             🔄 Play Again
           </Button>
-          
-          {isFullscreen && onExitFullscreen && (
-            <Button
-              variant="outline"
-              onClick={onExitFullscreen}
-            >
-              ⛶ Exit Fullscreen
-            </Button>
-          )}
 
           <Button
             variant="outline"
-            onClick={onBackToGames}
+            onClick={handleExitFullscreenClick}
           >
-            ⬅ Back to Biology Games
+            {isFullscreen ? "⛶ Exit Fullscreen" : "⬅️ Back to Biology Games"}
           </Button>
+
+          {!isFullscreen && (
+            <Button
+              variant="ghost"
+              onClick={onBackToGames}
+              className="text-xs"
+            >
+              or navigate back
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>
