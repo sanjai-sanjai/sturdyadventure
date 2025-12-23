@@ -83,16 +83,16 @@ export function ConceptIntroPopup({
         <div className="mt-6 flex gap-3">
           <Button
             variant="outline"
-            onClick={onClose}
+            onClick={handleGoBack}
             className="flex-1"
           >
-            ❌ Go Back
+            ⬅️ Go Back
           </Button>
           <Button
             onClick={onStart}
             className="flex-1 bg-primary hover:bg-primary/90"
           >
-            ✅ Start Game
+            ▶️ Start Game
           </Button>
         </div>
       </DialogContent>
