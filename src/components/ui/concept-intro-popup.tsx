@@ -1,10 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useNavigate } from "react-router-dom";
 
 export interface ConceptIntroPopupProps {
   isOpen: boolean;
-  onClose: () => void;
   onStart: () => void;
   conceptName: string;
   whatYouWillUnderstand: string;
@@ -15,7 +14,6 @@ export interface ConceptIntroPopupProps {
 
 export function ConceptIntroPopup({
   isOpen,
-  onClose,
   onStart,
   conceptName,
   whatYouWillUnderstand,
@@ -23,21 +21,20 @@ export function ConceptIntroPopup({
   successMeaning,
   icon,
 }: ConceptIntroPopupProps) {
+  const navigate = useNavigate();
+
+  const handleGoBack = () => {
+    navigate("/student/biology");
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="sm:max-w-[500px] glass-card border-border">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             {icon && <span className="text-2xl">{icon}</span>}
             <span>{conceptName}</span>
           </DialogTitle>
-          <button
-            onClick={onClose}
-            className="absolute right-4 top-4 rounded-md opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-          >
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </button>
         </DialogHeader>
 
         <div className="space-y-5">
