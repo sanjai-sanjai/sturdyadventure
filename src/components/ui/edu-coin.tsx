@@ -53,7 +53,12 @@ export function EduCoin({
         style={{
           aspectRatio: "1 / 1",
           objectFit: "contain",
-        }}
+          "@media (max-width: 640px)": size === "lg"
+            ? { width: "30px" }
+            : size === "sm"
+            ? { width: "20px" }
+            : undefined,
+        } as React.CSSProperties}
       />
 
       {showLabel && <span className="text-xs font-bold text-yellow-600">EduCoins</span>}
