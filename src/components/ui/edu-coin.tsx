@@ -6,6 +6,7 @@ interface EduCoinProps {
   animated?: boolean;
   className?: string;
   showLabel?: boolean;
+  responsiveSizeMap?: Record<string, number>;
 }
 
 const sizeMap = {
