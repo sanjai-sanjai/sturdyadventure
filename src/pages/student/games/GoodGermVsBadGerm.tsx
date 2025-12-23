@@ -321,7 +321,6 @@ export default function GoodGermVsBadGerm() {
     <>
       <ConceptIntroPopup
         isOpen={showIntro}
-        onClose={() => setShowIntro(true)}
         onStart={() => {
           setShowIntro(false);
           setGameStarted(true);
