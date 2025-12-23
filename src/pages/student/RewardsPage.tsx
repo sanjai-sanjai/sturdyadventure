@@ -213,7 +213,14 @@ export default function RewardsPage() {
                 <div className="flex-1 glass-card rounded-xl p-4 border border-border/50">
                   <p className="text-xs text-muted-foreground mb-2 font-bold">Spent</p>
                   <div className="flex items-center gap-2">
-                    <p className="font-heading text-2xl font-bold text-primary">
+                    <p
+                      className="font-heading text-2xl font-bold text-primary"
+                      style={{
+                        "@media (max-width: 640px)": {
+                          color: "rgba(209, 80, 96, 1)",
+                        },
+                      } as React.CSSProperties}
+                    >
                       {spent.toLocaleString()}
                     </p>
                     <EduCoin size="sm" />
