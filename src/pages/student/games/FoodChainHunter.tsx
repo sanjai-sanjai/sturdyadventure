@@ -248,8 +248,10 @@ export default function FoodChainHunter() {
     <>
       <ConceptIntroPopup
         isOpen={showIntro}
-        onClose={() => setShowIntro(true)}
-        onStart={() => setShowIntro(false)}
+        onStart={() => {
+          setShowIntro(false);
+          setGameStarted(true);
+        }}
         conceptName="🌿 Food Chain Hunter"
         whatYouWillUnderstand="Understand how energy flows from plants to animals, and how removing one species affects the entire ecosystem."
         gameSteps={[
